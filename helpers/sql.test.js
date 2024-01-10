@@ -19,7 +19,6 @@ describe("sqlForPartialUpdate tests", function () {
       { firstName: "edit_fname", l_name: "edited_lname" },
       { firstName: "first_name", lastName: "last_name" }
     );
-
     expect(result).toEqual({
       setCols: "\"first_name\"=$1, \"l_name\"=$2",
       values: ["edit_fname", "edited_lname"]
