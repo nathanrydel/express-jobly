@@ -36,4 +36,8 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   };
 }
 
+
+//add a helper function for sqlForFiltering where we convert the query
+//params passed in to a parameterized sql query
+
 module.exports = { sqlForPartialUpdate };
