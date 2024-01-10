@@ -8,7 +8,6 @@ describe("sqlForPartialUpdate tests", function () {
       { firstName: "edited_value" },
       { firstName: "first_name" }
     );
-
     expect(result).toEqual({
       setCols: "\"first_name\"=$1",
       values: ["edited_value"]
