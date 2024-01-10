@@ -27,8 +27,6 @@ describe("sqlForPartialUpdate tests", function () {
     });
   });
 
-  // SHOULD WE TEST THIS HERE OR IN THE ROUTE TEST
-
   test("no changes - Error returned", function () {
     expect(() => {
       sqlForPartialUpdate({}, {});
