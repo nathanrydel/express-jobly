@@ -27,16 +27,12 @@ describe("sqlForPartialUpdate tests", function () {
     });
   });
 
-  // TODO: figure out how to test error from function
   // SHOULD WE TEST THIS HERE OR IN THE ROUTE TEST
 
-  // test("no changes - Error returned", function () {
-  //   const result = sqlForPartialUpdate(
-  //     {},
-  //     { firstName: "first_name", lastName: "last_name" }
-  //   );
-  //   console.log(result);
-  //   expect(result).toEqual("No data");
-  // });
+  test("no changes - Error returned", function () {
+    expect(() => {
+      sqlForPartialUpdate({}, {});
+    }).toThrow("No data");
+  });
 
 });
