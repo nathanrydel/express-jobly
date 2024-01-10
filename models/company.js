@@ -73,6 +73,7 @@ class Company {
    */
   static async findFilteredCompanies(filterCriteria){
     const whereStatementSql = this.sqlForFilteringCompanies(filterCriteria);
+    console.log("this is whereStmtSql", whereStatementSql);
     const queryStr = `
         SELECT handle,
                name,
@@ -82,6 +83,7 @@ class Company {
         FROM companies
         WHERE ${whereStatementSql.whereCols}
         ORDER BY name`;
+    // console.log("this is queryStr", queryStr);
     const companiesRes = await db.query(queryStr, [whereStatementSql.values]);
     return companiesRes.rows;
   }
@@ -102,18 +104,19 @@ class Company {
  *    values: [2, 3, '%c%']
  * }
  */
-  static sqlForFilteringCompanies({ minEmployees, maxEmployees, nameLike }){
+  static sqlForFilteringCompanies(dataToFilter){
   // if (keys.length === 0) return;
-    const keys = Object.keys(dataToUpdate);
-
+    // console.log("this is dataToFilter", dataToFilter);
+    const keys = Object.keys(dataToFilter);
+    // console.log("this is keys", keys);
     const cols = keys.map(function(idx){
-      if (keys[minEmployees]){
+      if (keys["minEmployees"]){
         `num_employees >= $${idx + 1}`
       }
-      if (keys[maxEmployees]){
+      if (keys["maxEmployees"]){
         `num_employees <= $${idx + 1}`
       }
-      if (keys[nameLike]){
+      if (keys["nameLike"]){
         `name ILIKE $${idx + 1}`
       }
     });
@@ -125,7 +128,7 @@ class Company {
     }
     return {
       whereCols: cols.join(", "),
-      values: Object.values(dataToUpdate),
+      values: Object.values(dataToFilter),
     };
   }
 
