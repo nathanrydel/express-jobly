@@ -75,7 +75,7 @@ class Company {
   //could combine findAll and findFilteredCompanies and check on query string input
   static async findFilteredCompanies(filterCriteria) {
     //could put _sqlForFilteringCompanies since is an internal function
-    const whereStatementSql = this.sqlForFilteringCompanies(filterCriteria);
+    const whereStatementSql = this._sqlForFilteringCompanies(filterCriteria);
     const queryStr = `
         SELECT handle,
                name,
