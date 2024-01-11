@@ -55,7 +55,10 @@ router.get("/", async function (req, res, next) {
   let companies;
   let q = req.query;
   if (Object.keys(q).length !== 0) {
-    companies = await Company.findFilteredCompanies(req.query);
+    if (q.minEmployees !== undefined) q.minEmployees = +q.minEmployees;
+    if (q.maxEmployees !== undefined) q.maxEmployees = +q.maxEmployees;
+    if (q.minEmployees > q.maxEmployees) throw new BadRequestError();
+    companies = await Company.findFilteredCompanies(q);
   }
   else {
     companies = await Company.findAll();
