@@ -73,6 +73,7 @@ class Company {
    */
   static async findFilteredCompanies(filterCriteria) {
     const whereStatementSql = this.sqlForFilteringCompanies(filterCriteria);
+    console.log("whereStatementSql.whereCols", whereStatementSql.whereCols);
     console.log("this is whereStmtSql", whereStatementSql);
     const queryStr = `
         SELECT handle,
@@ -84,7 +85,7 @@ class Company {
         WHERE ${whereStatementSql.whereCols}
         ORDER BY name`;
     // console.log("this is queryStr", queryStr);
-    const companiesRes = await db.query(queryStr, [whereStatementSql.values]);
+    const companiesRes = await db.query(queryStr, whereStatementSql.values);
     return companiesRes.rows;
   }
 
@@ -108,18 +109,24 @@ class Company {
     // if (keys.length === 0) return;
     // console.log("this is dataToFilter", dataToFilter);
     const keys = Object.keys(dataToFilter);
+    const sanitizedValues = [];
+
     console.log("this is keys", keys);
     const unfilteredCols = keys.map(function (key, idx) {
       if (keys[idx] === "minEmployees") {
-        return `num_employees >= $${idx + 1}`;
+        sanitizedValues.push(Number(`${dataToFilter[keys[idx]]}`));
+        return `"num_employees" >= $${idx + 1}`;
       }
       if (keys[idx] === "maxEmployees") {
-        return `num_employees <= $${idx + 1}`;
+        sanitizedValues.push(Number(`${dataToFilter[keys[idx]]}`));
+        return `"num_employees" <= $${idx + 1}`;
       }
       if (keys[idx] === "nameLike") {
-        return `name ILIKE $${idx + 1}`;
+        sanitizedValues.push(`%${dataToFilter[keys[idx]]}%`);
+        return `"name" ILIKE $${idx + 1}`;
       }
     });
+    console.log("this is sanitizedValues", sanitizedValues);
 
     const cols = unfilteredCols.filter(col => col !== undefined);
 
@@ -153,7 +160,7 @@ class Company {
     }
     return {
       whereCols: cols.join(" "),
-      values: Object.values(dataToFilter),
+      values: sanitizedValues,
       // values: parameterizedValues
     };
   }
