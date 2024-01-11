@@ -38,12 +38,12 @@ class Company {
                     description,
                     num_employees AS "numEmployees",
                     logo_url AS "logoUrl"`, [
-          handle,
-          name,
-          description,
-          numEmployees,
-          logoUrl,
-        ],
+      handle,
+      name,
+      description,
+      numEmployees,
+      logoUrl,
+    ],
     );
     const company = result.rows[0];
 
@@ -71,7 +71,7 @@ class Company {
    *
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    */
-  static async findFilteredCompanies(filterCriteria){
+  static async findFilteredCompanies(filterCriteria) {
     const whereStatementSql = this.sqlForFilteringCompanies(filterCriteria);
     console.log("this is whereStmtSql", whereStatementSql);
     const queryStr = `
@@ -104,30 +104,30 @@ class Company {
  *    values: [2, 3, '%c%']
  * }
  */
-  static sqlForFilteringCompanies(dataToFilter){
-  // if (keys.length === 0) return;
+  static sqlForFilteringCompanies(dataToFilter) {
+    // if (keys.length === 0) return;
     // console.log("this is dataToFilter", dataToFilter);
     const keys = Object.keys(dataToFilter);
-    // console.log("this is keys", keys);
-    const cols = keys.map(function(idx){
-      if (keys["minEmployees"]){
-        `num_employees >= $${idx + 1}`
+    console.log("this is keys", keys);
+    const cols = keys.map(function (key, idx) {
+      if (keys[idx] === "minEmployees") {
+        return `num_employees >= $${idx + 1}`;
       }
-      if (keys["maxEmployees"]){
-        `num_employees <= $${idx + 1}`
+      if (keys[idx] === "maxEmployees") {
+        return `num_employees <= $${idx + 1}`;
       }
-      if (keys["nameLike"]){
-        `name ILIKE $${idx + 1}`
+      if (keys[idx] === "nameLike") {
+        return `name ILIKE $${idx + 1}`;
       }
     });
 
-    const counter = 0;
-    while(counter < cols.length-1){
+    let counter = 0;
+    while (counter < cols.length - 1) {
       cols[counter] += " AND";
       counter += 1;
     }
     return {
-      whereCols: cols.join(", "),
+      whereCols: cols.join(" "),
       values: Object.values(dataToFilter),
     };
   }
@@ -171,11 +171,11 @@ class Company {
 
   static async update(handle, data) {
     const { setCols, values } = sqlForPartialUpdate(
-        data,
-        {
-          numEmployees: "num_employees",
-          logoUrl: "logo_url",
-        });
+      data,
+      {
+        numEmployees: "num_employees",
+        logoUrl: "logo_url",
+      });
     const handleVarIdx = "$" + (values.length + 1);
 
     const querySql = `
