@@ -31,7 +31,7 @@ describe("create", function () {
     expect(company).toEqual(newCompany);
 
     const result = await db.query(
-          `SELECT handle, name, description, num_employees, logo_url
+      `SELECT handle, name, description, num_employees, logo_url
            FROM companies
            WHERE handle = 'new'`);
     expect(result.rows).toEqual([
@@ -89,8 +89,8 @@ describe("findAll", function () {
 
 /************************************** findFilteredCompanies */
 
-describe("findFilteredCompanies", function(){
-  test("filter by one criteria", async function(){
+describe("findFilteredCompanies", function () {
+  test("filter by one criteria", async function () {
     const companies = await Company.findFilteredCompanies({
       minEmployees: "2"
     });
@@ -114,7 +114,7 @@ describe("findFilteredCompanies", function(){
     );
   });
 
-  test("filter by all criteria", async function(){
+  test("filter by all criteria", async function () {
     const companies = await Company.findFilteredCompanies({
       minEmployees: "2",
       maxEmployees: "4",
@@ -138,8 +138,8 @@ describe("findFilteredCompanies", function(){
 
 /************************************** sqlForFilteringCompanies */
 
-describe("sqlForFilteringCompanies", function(){
-  test("generate SQL for one criteria", function(){
+describe("sqlForFilteringCompanies", function () {
+  test("generate SQL for all criteria", function () {
     const generatedParameterizedQuery = Company.sqlForFilteringCompanies({
       minEmployees: "2",
       maxEmployees: "3",
@@ -147,13 +147,14 @@ describe("sqlForFilteringCompanies", function(){
     });
     expect(generatedParameterizedQuery).toEqual(
       {
-        whereCols: '"num_employees" >= $1 AND "num_employees" <= $2 AND "name" ILIKE $3',
+        whereCols:
+          '"num_employees" >= $1 AND "num_employees" <= $2 AND "name" ILIKE $3',
         values: [2, 3, '%c%']
       }
     );
   });
 
-  test("generate SQL for all criteria", function(){
+  test("generate SQL for one criteria", function () {
     const generatedParameterizedQuery = Company.sqlForFilteringCompanies({
       minEmployees: "2"
     });
@@ -165,12 +166,12 @@ describe("sqlForFilteringCompanies", function(){
     );
   });
 
-  test("filter by wrong criteria", async function(){
-    expect( () => {
+  test("filter by wrong criteria", async function () {
+    expect(() => {
       Company.sqlForFilteringCompanies({
         wrong: "4"
       });
-    }).toThrow("Bad query param included");
+    }).toThrow(BadRequestError);
   });
 });
 
@@ -218,7 +219,7 @@ describe("update", function () {
     });
 
     const result = await db.query(
-          `SELECT handle, name, description, num_employees, logo_url
+      `SELECT handle, name, description, num_employees, logo_url
            FROM companies
            WHERE handle = 'c1'`);
     expect(result.rows).toEqual([{
@@ -245,7 +246,7 @@ describe("update", function () {
     });
 
     const result = await db.query(
-          `SELECT handle, name, description, num_employees, logo_url
+      `SELECT handle, name, description, num_employees, logo_url
            FROM companies
            WHERE handle = 'c1'`);
     expect(result.rows).toEqual([{
@@ -282,7 +283,7 @@ describe("remove", function () {
   test("works", async function () {
     await Company.remove("c1");
     const res = await db.query(
-        "SELECT handle FROM companies WHERE handle='c1'");
+      "SELECT handle FROM companies WHERE handle='c1'");
     expect(res.rows.length).toEqual(0);
   });
 

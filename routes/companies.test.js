@@ -95,10 +95,8 @@ describe("GET /companies", function () {
         ],
     });
   });
-  //make tests for filter by all three things,
-  //filter by one thing, and test for failed filter
 
-  test("filter for all three criteria", async function () {
+  test("filter for all criteria", async function () {
     const resp = await request(app)
       .get("/companies")
       .query({
@@ -136,13 +134,6 @@ describe("GET /companies", function () {
             numEmployees: 2,
             logoUrl: "http://c2.img",
           },
-          // {
-          //   handle: "c3",
-          //   name: "C3",
-          //   description: "Desc3",
-          //   numEmployees: 3,
-          //   logoUrl: "http://c3.img",
-          // }
         ]
     });
   });

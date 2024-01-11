@@ -1,6 +1,7 @@
 "use strict";
 
 const { sqlForPartialUpdate } = require("./sql");
+const { BadRequestError } = require("../expressError");
 
 describe("sqlForPartialUpdate tests", function () {
   test("single change", function () {
@@ -28,7 +29,7 @@ describe("sqlForPartialUpdate tests", function () {
   test("no changes - Error returned", function () {
     expect(() => {
       sqlForPartialUpdate({}, {});
-    }).toThrow("No data");
+    }).toThrow(BadRequestError);
   });
 
 });
