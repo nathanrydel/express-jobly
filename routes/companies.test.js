@@ -41,7 +41,7 @@ describe("POST /companies", function () {
     });
   });
 
-  test("unauthorized for normal users", async function () {
+  test("unauth for users", async function () {
     const resp = await request(app)
       .post("/companies")
       .send(newCompany)
@@ -246,7 +246,7 @@ describe("PATCH /companies/:handle", function () {
     });
   });
 
-  test("unauth for non admin users", async function () {
+  test("unauth for users", async function () {
     const resp = await request(app)
       .patch(`/companies/c1`)
       .send({
