@@ -2,7 +2,6 @@
 
 const { BadRequestError } = require("../expressError");
 
-// THIS NEEDS SOME GREAT DOCUMENTATION.
 /**
  * Helper function to make updates to database based on variatic input
  *
@@ -36,27 +35,5 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   };
 }
 
-//add a helper function for sqlForFiltering where we convert the query
-//params passed in to a parameterized sql query
-/**
- * dataToFilter: {minEmployees: 2, maxEmployees: 3, nameLike: 'c'}
- * queryToParams: {num_employees, name}
- *
-  @example {minEmployees: 2, maxEmployees: 3, nameLike: 'c', } =>
- *  {
- *    whereCols: '"num_employees" >= $1"',
- *      '"num_employees" <= $2"',
- *       '"name ILIKE $3"'
- *    values: [2, 3, '%c%']
- * }
- */
-function sqlForFilteringCompanies(dataToFilter){
-  const keys = Object.keys(dataToUpdate);
-  // if (keys.length === 0) return;
-
-
-
-
-}
 
 module.exports = { sqlForPartialUpdate };
