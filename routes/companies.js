@@ -53,7 +53,7 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
 
 router.get("/", async function (req, res, next) {
   let companies;
-  let q = req.query;
+  const q = req.query;
   if (Object.keys(q).length !== 0) {
     if (q.minEmployees !== undefined) q.minEmployees = +q.minEmployees;
     if (q.maxEmployees !== undefined) q.maxEmployees = +q.maxEmployees;
