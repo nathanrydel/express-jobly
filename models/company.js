@@ -109,7 +109,7 @@ class Company {
     // console.log("this is dataToFilter", dataToFilter);
     const keys = Object.keys(dataToFilter);
     console.log("this is keys", keys);
-    const cols = keys.map(function (key, idx) {
+    const unfilteredCols = keys.map(function (key, idx) {
       if (keys[idx] === "minEmployees") {
         return `num_employees >= $${idx + 1}`;
       }
@@ -121,6 +121,31 @@ class Company {
       }
     });
 
+    const cols = unfilteredCols.filter(col => col !== undefined);
+
+    // const cols = [];
+    // const parameterizedValues = [];
+    // for(let i = 0; i < keys.length; i++){
+    //   if (keys[i] === "minEmployees") {
+    //     cols.push(`num_employees >= $${i + 1}`);
+    //     parameterizedValues.push(keys[i]);
+    //   }
+    //   if (keys[i] === "maxEmployees") {
+    //     console.log("hiiiiiiiiiiiii");
+    //     cols.push(`num_employees <= $${i + 1}`);
+    //     parameterizedValues.push(keys[i]);
+    //   }
+    //   if (keys[i] === "nameLike") {
+    //     console.log("testtttttttttttt");
+    //     cols.push(`name ILIKE $${idx + 1}`);
+    //     parameterizedValues.push(`%${keys[i]}%`);
+    //   }
+    //   // else{
+    //   //   continue;
+    //   // }
+    // }
+    console.log('cols', cols);
+    // console.log('parameterizedValues', parameterizedValues);
     let counter = 0;
     while (counter < cols.length - 1) {
       cols[counter] += " AND";
@@ -129,6 +154,7 @@ class Company {
     return {
       whereCols: cols.join(" "),
       values: Object.values(dataToFilter),
+      // values: parameterizedValues
     };
   }
 
