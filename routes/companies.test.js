@@ -124,7 +124,7 @@ describe("GET /companies", function () {
     const resp = await request(app)
       .get("/companies")
       .query({
-        minEmployees: 2
+        nameLike: "2"
       });
     expect(resp.body).toEqual({
       companies:
@@ -136,13 +136,13 @@ describe("GET /companies", function () {
             numEmployees: 2,
             logoUrl: "http://c2.img",
           },
-          {
-            handle: "c3",
-            name: "C3",
-            description: "Desc3",
-            numEmployees: 3,
-            logoUrl: "http://c3.img",
-          }
+          // {
+          //   handle: "c3",
+          //   name: "C3",
+          //   description: "Desc3",
+          //   numEmployees: 3,
+          //   logoUrl: "http://c3.img",
+          // }
         ]
     });
   });
@@ -153,6 +153,16 @@ describe("GET /companies", function () {
       .query({
         wrong_param_1: 2,
         wrong_param_2: 3
+      });
+    expect(resp.statusCode).toEqual(400);
+  });
+
+  test("filter behavior when minEmployees > maxEmployees", async function () {
+    const resp = await request(app)
+      .get("/companies")
+      .query({
+        minEmployees: 4,
+        maxEmployees: 3
       });
     expect(resp.statusCode).toEqual(400);
   });
