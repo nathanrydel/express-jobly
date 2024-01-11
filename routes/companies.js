@@ -54,12 +54,12 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
 router.get("/", async function (req, res, next) {
   let companies;
   const q = req.query;
+
+  //could use jsonschema to validate inputs
+  // jsonschema will validate query string objects just fine
   if (Object.keys(q).length !== 0) {
-    //should write if q.minEmployees in q
-    //could use jsonschema to validate inputs
-    // jsonschema will validate query string objects just fine
-    if (q.minEmployees !== undefined) q.minEmployees = +q.minEmployees;
-    if (q.maxEmployees !== undefined) q.maxEmployees = +q.maxEmployees;
+    if ("minEmployees" in q) q.minEmployees = +q.minEmployees;
+    if ("maxEmployees" in q) q.maxEmployees = +q.maxEmployees;
     if (q.minEmployees > q.maxEmployees) throw new BadRequestError();
     companies = await Company.findFilteredCompanies(q);
   }
