@@ -50,8 +50,19 @@ function ensureAdmin(req, res, next) {
   throw new UnauthorizedError();
 }
 
+/** Middleware to use to whether the current user is the correct user or
+ *  they are an admin
+ *
+ *  If not, raises Unauthorized
+ */
+
+function ensureAdminOrCorrectUser(req, res, next) {
+
+}
+
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
-  ensureAdmin
+  ensureAdmin,
+  ensureAdminOrCorrectUser
 };
