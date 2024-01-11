@@ -85,3 +85,38 @@ describe("ensureAdmin", function () {
       .toThrow(UnauthorizedError);
   });
 });
+
+describe("ensureAdminOrCorrectUser", function () {
+  test("works for correct user", function () {
+    const req = { params: { username: "test" } };
+    const res = { locals: { user: { username: "test", isAdmin: false } } };
+    ensureAdminOrCorrectUser(req, res, next);
+  });
+
+  test("works for admin", function () {
+    const req = { params: { username: "test" } };
+    const res = { locals: { user: { username: "admin", isAdmin: true } } };
+    ensureAdminOrCorrectUser(req, res, next);
+  });
+
+  test("unauth if not admin and not correct user", function () {
+    const req = { params: { username: "test" } };
+    const res = { locals: { user: { username: "not_test", isAdmin: false } } };
+    expect(() => ensureAdminOrCorrectUser(req, res, next))
+      .toThrow(UnauthorizedError);
+  });
+
+  test("unauth if user tries to delete another user", function () {
+    const req = { params: { username: "not_test" } };
+    const res = { locals: { user: { username: "test", isAdmin: false } } };
+    expect(() => ensureAdminOrCorrectUser(req, res, next))
+      .toThrow(UnauthorizedError);
+  });
+
+  test("unauth if anon", function () {
+    const req = { params: { username: "test" } };
+    const res = { locals: {} };
+    expect(() => ensureAdminOrCorrectUser(req, res, next))
+      .toThrow(UnauthorizedError);
+  });
+});
