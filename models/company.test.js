@@ -87,6 +87,95 @@ describe("findAll", function () {
   });
 });
 
+/************************************** findFilteredCompanies */
+
+describe("findFilteredCompanies", function(){
+  test("filter by one criteria", async function(){
+    const companies = await Company.findFilteredCompanies({
+      minEmployees: "2"
+    });
+    expect(companies).toEqual(
+      [
+        {
+          handle: "c2",
+          name: "C2",
+          description: "Desc2",
+          numEmployees: 2,
+          logoUrl: "http://c2.img",
+        },
+        {
+          handle: "c3",
+          name: "C3",
+          description: "Desc3",
+          numEmployees: 3,
+          logoUrl: "http://c3.img",
+        },
+      ]
+    );
+  });
+
+  test("filter by all criteria", async function(){
+    const companies = await Company.findFilteredCompanies({
+      minEmployees: "2",
+      maxEmployees: "4",
+      nameLike: "2"
+    });
+    expect(companies).toEqual(
+      [
+        {
+          handle: "c2",
+          name: "C2",
+          description: "Desc2",
+          numEmployees: 2,
+          logoUrl: "http://c2.img",
+        }
+      ]
+    );
+  });
+
+});
+
+
+/************************************** sqlForFilteringCompanies */
+
+describe("sqlForFilteringCompanies", function(){
+  test("generate SQL for one criteria", function(){
+    const generatedParameterizedQuery = Company.sqlForFilteringCompanies({
+      minEmployees: "2",
+      maxEmployees: "3",
+      nameLike: 'c'
+    });
+    expect(generatedParameterizedQuery).toEqual(
+      {
+        whereCols: '"num_employees" >= $1 AND "num_employees" <= $2 AND "name" ILIKE $3',
+        values: [2, 3, '%c%']
+      }
+    );
+  });
+
+  test("generate SQL for all criteria", function(){
+    const generatedParameterizedQuery = Company.sqlForFilteringCompanies({
+      minEmployees: "2"
+    });
+    expect(generatedParameterizedQuery).toEqual(
+      {
+        whereCols: '"num_employees" >= $1',
+        values: [2]
+      }
+    );
+  });
+
+  test("filter by wrong criteria", async function(){
+    expect( () => {
+      Company.sqlForFilteringCompanies({
+        wrong: "4"
+      });
+    }).toThrow("Bad query param included");
+  });
+});
+
+
+
 /************************************** get */
 
 describe("get", function () {

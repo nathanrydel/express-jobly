@@ -71,10 +71,9 @@ class Company {
    *
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    */
+
   static async findFilteredCompanies(filterCriteria) {
     const whereStatementSql = this.sqlForFilteringCompanies(filterCriteria);
-    console.log("whereStatementSql.whereCols", whereStatementSql.whereCols);
-    console.log("this is whereStmtSql", whereStatementSql);
     const queryStr = `
         SELECT handle,
                name,
@@ -84,41 +83,35 @@ class Company {
         FROM companies
         WHERE ${whereStatementSql.whereCols}
         ORDER BY name`;
-    // console.log("this is queryStr", queryStr);
     const companiesRes = await db.query(queryStr, whereStatementSql.values);
     return companiesRes.rows;
   }
 
+  /** Takes an object of filter criteria and generates corresponding
+  * SQL statements for the WHERE clause and sanitizes values
+  *
+  * dataToFilter: {minEmployees: 2, maxEmployees: 3, nameLike: 'c'}
+  *
+  * @example {minEmployees: 2, maxEmployees: 3, nameLike: 'c', } =>
+  * {
+  *    whereCols: '"num_employees" >= $1"',
+  *      '"num_employees" <= $2"',
+  *       '"name ILIKE $3"'
+  *    values: [2, 3, '%c%']
+  * }
+  */
 
-
-  //add a helper function for sqlForFiltering where we convert the query
-  //params passed in to a parameterized sql query
-  /**
- * dataToFilter: {minEmployees: 2, maxEmployees: 3, nameLike: 'c'}
- * queryToParams: {num_employees, name}
- *
-  @example {minEmployees: 2, maxEmployees: 3, nameLike: 'c', } =>
- *  {
- *    whereCols: '"num_employees" >= $1"',
- *      '"num_employees" <= $2"',
- *       '"name ILIKE $3"'
- *    values: [2, 3, '%c%']
- * }
- */
   static sqlForFilteringCompanies(dataToFilter) {
-    // if (keys.length === 0) return;
-    // console.log("this is dataToFilter", dataToFilter);
     const keys = Object.keys(dataToFilter);
     const sanitizedValues = [];
 
-    console.log("this is keys", keys);
-    const unfilteredCols = keys.map(function (key, idx) {
+    const sqlStatements = keys.map(function (key, idx) {
       if (keys[idx] === "minEmployees") {
-        sanitizedValues.push(Number(`${dataToFilter[keys[idx]]}`));
+        sanitizedValues.push(Number(dataToFilter[keys[idx]]));
         return `"num_employees" >= $${idx + 1}`;
       }
       if (keys[idx] === "maxEmployees") {
-        sanitizedValues.push(Number(`${dataToFilter[keys[idx]]}`));
+        sanitizedValues.push(Number(dataToFilter[keys[idx]]));
         return `"num_employees" <= $${idx + 1}`;
       }
       if (keys[idx] === "nameLike") {
@@ -126,42 +119,20 @@ class Company {
         return `"name" ILIKE $${idx + 1}`;
       }
     });
-    console.log("this is sanitizedValues", sanitizedValues);
 
-    const cols = unfilteredCols.filter(col => col !== undefined);
+    if (sqlStatements.includes(undefined)) {
+      throw new BadRequestError("Bad query param included");
+    }
 
-    // const cols = [];
-    // const parameterizedValues = [];
-    // for(let i = 0; i < keys.length; i++){
-    //   if (keys[i] === "minEmployees") {
-    //     cols.push(`num_employees >= $${i + 1}`);
-    //     parameterizedValues.push(keys[i]);
-    //   }
-    //   if (keys[i] === "maxEmployees") {
-    //     console.log("hiiiiiiiiiiiii");
-    //     cols.push(`num_employees <= $${i + 1}`);
-    //     parameterizedValues.push(keys[i]);
-    //   }
-    //   if (keys[i] === "nameLike") {
-    //     console.log("testtttttttttttt");
-    //     cols.push(`name ILIKE $${idx + 1}`);
-    //     parameterizedValues.push(`%${keys[i]}%`);
-    //   }
-    //   // else{
-    //   //   continue;
-    //   // }
-    // }
-    console.log('cols', cols);
-    // console.log('parameterizedValues', parameterizedValues);
     let counter = 0;
-    while (counter < cols.length - 1) {
-      cols[counter] += " AND";
+    while (counter < sqlStatements.length - 1) {
+      sqlStatements[counter] += " AND";
       counter += 1;
     }
+
     return {
-      whereCols: cols.join(" "),
+      whereCols: sqlStatements.join(" "),
       values: sanitizedValues,
-      // values: parameterizedValues
     };
   }
 
