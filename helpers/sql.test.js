@@ -4,7 +4,7 @@ const { sqlForPartialUpdate } = require("./sql");
 const { BadRequestError } = require("../expressError");
 
 describe("sqlForPartialUpdate tests", function () {
-  test("single change", function () {
+  test("single value to parse", function () {
     const result = sqlForPartialUpdate(
       { firstName: "edited_value" },
       { firstName: "first_name" }
@@ -14,8 +14,8 @@ describe("sqlForPartialUpdate tests", function () {
       values: ["edited_value"]
     });
   });
-  //change word change to values
-  test("more than one change", function () {
+
+  test("more than one value to parse", function () {
     const result = sqlForPartialUpdate(
       { firstName: "edit_fname", l_name: "edited_lname" },
       { firstName: "first_name", lastName: "last_name" }
@@ -25,11 +25,10 @@ describe("sqlForPartialUpdate tests", function () {
       values: ["edit_fname", "edited_lname"]
     });
   });
-  //can give key/vals to second argument since would still
-  // result in same test error
-  test("no changes - Error returned", function () {
+
+  test("no values to parse - Error returned", function () {
     expect(() => {
-      sqlForPartialUpdate({}, {});
+      sqlForPartialUpdate({}, { firstName: "first_name", age: "age" });
     }).toThrow(BadRequestError);
   });
 
