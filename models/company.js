@@ -103,7 +103,7 @@ class Company {
   * }
   */
 
-  static sqlForFilteringCompanies(dataToFilter) {
+  static _sqlForFilteringCompanies(dataToFilter) {
     const keys = Object.keys(dataToFilter);
     const sanitizedValues = [];
 
