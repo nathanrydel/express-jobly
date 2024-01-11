@@ -136,11 +136,11 @@ describe("findFilteredCompanies", function () {
 });
 
 
-/************************************** sqlForFilteringCompanies */
+/************************************** _sqlForFilteringCompanies */
 
-describe("sqlForFilteringCompanies", function () {
+describe("_sqlForFilteringCompanies", function () {
   test("generate SQL for all criteria", function () {
-    const generatedParameterizedQuery = Company.sqlForFilteringCompanies({
+    const generatedParameterizedQuery = Company._sqlForFilteringCompanies({
       minEmployees: "2",
       maxEmployees: "3",
       nameLike: 'c'
@@ -155,7 +155,7 @@ describe("sqlForFilteringCompanies", function () {
   });
 
   test("generate SQL for one criteria", function () {
-    const generatedParameterizedQuery = Company.sqlForFilteringCompanies({
+    const generatedParameterizedQuery = Company._sqlForFilteringCompanies({
       minEmployees: "2"
     });
     expect(generatedParameterizedQuery).toEqual(
@@ -168,7 +168,7 @@ describe("sqlForFilteringCompanies", function () {
 
   test("filter by wrong criteria", async function () {
     expect(() => {
-      Company.sqlForFilteringCompanies({
+      Company._sqlForFilteringCompanies({
         wrong: "4"
       });
     }).toThrow(BadRequestError);
