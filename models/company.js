@@ -72,7 +72,9 @@ class Company {
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    */
 
+  //could combine findAll and findFilteredCompanies and check on query string input
   static async findFilteredCompanies(filterCriteria) {
+    //could put _sqlForFilteringCompanies since is an internal function
     const whereStatementSql = this.sqlForFilteringCompanies(filterCriteria);
     const queryStr = `
         SELECT handle,
@@ -124,6 +126,7 @@ class Company {
       throw new BadRequestError("Bad query param included");
     }
 
+    //could use join to concatenate everything with and between
     let counter = 0;
     while (counter < sqlStatements.length - 1) {
       sqlStatements[counter] += " AND";
