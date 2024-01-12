@@ -46,9 +46,9 @@ function ensureLoggedIn(req, res, next) {
  */
 
 function ensureAdmin(req, res, next) {
-  // FIXME: checking for any truthy value in res.locals.user?.isAdmin
-  // need to consider case if sent as strings
-  if (res.locals.user?.username && res.locals.user?.isAdmin) return next();
+  if (res.locals.user?.username && res.locals.user?.isAdmin === true){
+    return next();
+  }
   throw new UnauthorizedError();
 }
 
@@ -60,8 +60,10 @@ function ensureAdmin(req, res, next) {
 
 function ensureAdminOrCorrectUser(req, res, next) {
   const user = res.locals.user;
-  // has a little wiggle room here
-  // user?.username could be undefined, req.params.username could also be undefined
+
+  if (user?.username === undefined || req.params.username === undefined){
+    throw new UnauthorizedError();
+  }
   if (user?.username === req.params.username || user?.isAdmin === true) {
     return next();
   }

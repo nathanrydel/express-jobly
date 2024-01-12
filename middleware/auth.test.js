@@ -78,10 +78,16 @@ describe("ensureAdmin", function () {
     ensureAdmin(req, res, next);
   });
 
-  // FIXME: check if string true or false will pass or fail
   test("unauth if not admin", function () {
     const req = {};
     const res = { locals: { user: { username: "test", isAdmin: false } } };
+    expect(() => ensureAdmin(req, res, next))
+      .toThrow(UnauthorizedError);
+  });
+
+  test("unauth if isAdmin value sent as string", function () {
+    const req = {};
+    const res = { locals: { user: { username: "test", isAdmin: "true" } } };
     expect(() => ensureAdmin(req, res, next))
       .toThrow(UnauthorizedError);
   });

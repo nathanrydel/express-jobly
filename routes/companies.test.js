@@ -340,12 +340,23 @@ describe("DELETE /companies/:handle", function () {
     expect(resp.statusCode).toEqual(401);
   });
 
-  test("not found for no such company", async function () {
+  test("not found for no such company while admin", async function () {
     const resp = await request(app)
       .delete(`/companies/nope`)
       .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(404);
   });
 
-  // check that that a 401 is for there anon users/ normal users
+  test("unauth for no such company while user", async function () {
+    const resp = await request(app)
+      .delete(`/companies/nope`)
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("unauth for no such company while anon", async function () {
+    const resp = await request(app)
+      .delete(`/companies/nope`)
+    expect(resp.statusCode).toEqual(401);
+  });
 });
