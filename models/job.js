@@ -55,16 +55,22 @@ class Job {
    * Returns [{ id, title, salary, equity, company_handle }, ...]
    * */
 
-  static async findAll() {
+  static async findAll({ minSalary, hasEquity, title } = {}) {
+
+    const { where, vals } = this._filterWhereBuilder({
+      minSalary, hasEquity, title,
+    });
+
     const jobsRes = await db.query(`
-      SELECT id,
-             title,
-             salary,
-             equity,
-             company_handle
-      FROM jobs
-      ORDER BY id
-    `);
+        SELECT j.id,
+               j.title,
+               j.salary,
+               j.equity,
+               j.company_handle AS "companyHandle",
+               c.name           AS "companyName"
+        FROM jobs j
+                 LEFT JOIN companies AS c ON c.handle = j.company_handle
+            ${where}`, vals);
 
     return jobsRes.rows;
   }
@@ -108,11 +114,6 @@ class Job {
     return { where, vals };
   }
 
-  /** TODO:  Find all jobs according to the filtered criteria*/
-
-  /** TODO:  Takes an object of filter criteria and generates corresponding
-  * SQL statements for the WHERE clause and sanitizes values
-  * */
 
   /** Given a job id, return data about job.
    *
