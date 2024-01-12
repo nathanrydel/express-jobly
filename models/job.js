@@ -69,6 +69,45 @@ class Job {
     return jobsRes.rows;
   }
 
+  /** Create WHERE clause for filters, to be used by functions that query
+ * with filters.
+ *
+ * searchFilters (all optional):
+ * - minSalary
+ * - hasEquity
+ * - title (will find case-insensitive, partial matches)
+ *
+ * Returns {
+ *  where: "WHERE minSalary >= $1 AND title ILIKE $2",
+ *  vals: [10000, '%Engineer%']
+ * }
+ */
+
+  static _filterWhereBuilder({ minSalary, hasEquity, title }) {
+    let whereParts = [];
+    let vals = [];
+
+    if (minSalary !== undefined) {
+      vals.push(minSalary);
+      whereParts.push(`salary >= $${vals.length}`);
+    }
+
+    if (hasEquity === true) {
+      whereParts.push(`equity > 0`);
+    }
+
+    if (title !== undefined) {
+      vals.push(`%${title}%`);
+      whereParts.push(`title ILIKE $${vals.length}`);
+    }
+
+    const where = (whereParts.length > 0) ?
+      "WHERE " + whereParts.join(" AND ")
+      : "";
+
+    return { where, vals };
+  }
+
   /** TODO:  Find all jobs according to the filtered criteria*/
 
   /** TODO:  Takes an object of filter criteria and generates corresponding
