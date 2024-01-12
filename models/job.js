@@ -49,4 +49,23 @@ class Job {
 
     return job;
   };
+
+  /** Find all jobs.
+   *
+   * Returns [{ id, title, salary, equity, companyHandle }, ...]
+   * */
+
+  static async findAll() {
+    const jobsResults = await db.query(`
+      SELECT id,
+             title,
+             salary,
+             equity,
+             company_handle AS "companyHandle"
+      FROM jobs
+      ORDER BY id
+    `);
+
+    return jobsResults.rows;
+  }
 }
