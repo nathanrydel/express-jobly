@@ -130,9 +130,10 @@ describe("GET /companies", function () {
   test("filter for all criteria", async function () {
     const resp = await request(app)
       .get("/companies")
+      // sending as strings matches query strings more truthfully
       .query({
-        minEmployees: 2,
-        maxEmployees: 3,
+        minEmployees: "2",
+        maxEmployees: "3",
         nameLike: "3"
       });
     expect(resp.body).toEqual({
@@ -345,4 +346,6 @@ describe("DELETE /companies/:handle", function () {
       .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(404);
   });
+
+  // check that that a 401 is for there anon users/ normal users
 });
