@@ -50,99 +50,82 @@ class Company {
     return company;
   }
 
-  /** Find all companies.
+  /** Create WHERE clause for filters, to be used by functions that query
+   * with filters.
+   *
+   * searchFilters (all optional):
+   * - minEmployees
+   * - maxEmployees
+   * - nameLike (will find case-insensitive, partial matches)
+   *
+   * Returns {
+   *  where: "WHERE num_employees >= $1 AND name ILIKE $2",
+   *  vals: [100, '%Apple%']
+   * }
+   */
+
+  static _filterWhereBuilder({ minEmployees, maxEmployees, nameLike }) {
+    let whereParts = [];
+    let vals = [];
+
+    if (minEmployees !== undefined) {
+      vals.push(minEmployees);
+      whereParts.push(`num_employees >= $${vals.length}`);
+    }
+
+    if (maxEmployees !== undefined) {
+      vals.push(maxEmployees);
+      whereParts.push(`num_employees <= $${vals.length}`);
+    }
+
+    if (nameLike) {
+      vals.push(`%${nameLike}%`);
+      whereParts.push(`name ILIKE $${vals.length}`);
+    }
+
+    const where = (whereParts.length > 0) ?
+      "WHERE " + whereParts.join(" AND ")
+      : "";
+
+    return { where, vals };
+  }
+
+  /** Find all companies (optional filter on searchFilters).
+   *
+   * searchFilters (all optional):
+   * - minEmployees
+   * - maxEmployees
+   * - nameLike (will find case-insensitive, partial matches)
    *
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
-  static async findAll() {
+  static async findAll(searchFilters = {}) {
+    const { minEmployees, maxEmployees, nameLike } = searchFilters;
+
+    if (minEmployees > maxEmployees) {
+      throw new BadRequestError("Min employees cannot be greater than max");
+    }
+
+    const { where, vals } = this._filterWhereBuilder({
+      minEmployees, maxEmployees, nameLike,
+    });
+
     const companiesRes = await db.query(`
         SELECT handle,
                name,
                description,
                num_employees AS "numEmployees",
                logo_url      AS "logoUrl"
-        FROM companies
-        ORDER BY name`);
+        FROM companies ${where}
+        ORDER BY name`, vals);
     return companiesRes.rows;
-  }
-
-  /** Find all companies according to the filtered criteria
-   *
-   * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
-   */
-
-  //could combine findAll and findFilteredCompanies and check on query string input
-  static async findFilteredCompanies(filterCriteria) {
-    //could put _sqlForFilteringCompanies since is an internal function
-    const whereStatementSql = this._sqlForFilteringCompanies(filterCriteria);
-    const queryStr = `
-        SELECT handle,
-               name,
-               description,
-               num_employees AS "numEmployees",
-               logo_url      AS "logoUrl"
-        FROM companies
-        WHERE ${whereStatementSql.whereCols}
-        ORDER BY name`;
-    const companiesRes = await db.query(queryStr, whereStatementSql.values);
-    return companiesRes.rows;
-  }
-
-  /** Takes an object of filter criteria and generates corresponding
-  * SQL statements for the WHERE clause and sanitizes values
-  *
-  * dataToFilter: {minEmployees: 2, maxEmployees: 3, nameLike: 'c'}
-  *
-  * @example {minEmployees: 2, maxEmployees: 3, nameLike: 'c', } =>
-  * {
-  *    whereCols: '"num_employees" >= $1"',
-  *      '"num_employees" <= $2"',
-  *       '"name ILIKE $3"'
-  *    values: [2, 3, '%c%']
-  * }
-  */
-
-  static _sqlForFilteringCompanies(dataToFilter) {
-    const keys = Object.keys(dataToFilter);
-    const sanitizedValues = [];
-
-    const sqlStatements = keys.map(function (key, idx) {
-      if (keys[idx] === "minEmployees") {
-        sanitizedValues.push(Number(dataToFilter[keys[idx]]));
-        return `"num_employees" >= $${idx + 1}`;
-      }
-      if (keys[idx] === "maxEmployees") {
-        sanitizedValues.push(Number(dataToFilter[keys[idx]]));
-        return `"num_employees" <= $${idx + 1}`;
-      }
-      if (keys[idx] === "nameLike") {
-        sanitizedValues.push(`%${dataToFilter[keys[idx]]}%`);
-        return `"name" ILIKE $${idx + 1}`;
-      }
-    });
-
-    if (sqlStatements.includes(undefined)) {
-      throw new BadRequestError("Bad query param included");
-    }
-
-    //could use join to concatenate everything with and between
-    let counter = 0;
-    while (counter < sqlStatements.length - 1) {
-      sqlStatements[counter] += " AND";
-      counter += 1;
-    }
-
-    return {
-      whereCols: sqlStatements.join(" "),
-      values: sanitizedValues,
-    };
   }
 
   /** Given a company handle, return data about company.
    *
    * Returns { handle, name, description, numEmployees, logoUrl, jobs }
-   *   where jobs is [{ id, title, salary, equity, companyHandle }, ...]
+   *   where jobs is [{ id, title, salary, equity }, ...]
    *
    * Throws NotFoundError if not found.
    **/
@@ -160,6 +143,15 @@ class Company {
     const company = companyRes.rows[0];
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
+
+    const jobsRes = await db.query(`
+        SELECT id, title, salary, equity
+        FROM jobs
+        WHERE company_handle = $1
+        ORDER BY id`, [handle],
+    );
+
+    company.jobs = jobsRes.rows;
 
     return company;
   }
