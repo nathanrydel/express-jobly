@@ -6,7 +6,7 @@ const jsonschema = require("jsonschema");
 const express = require("express");
 
 const { BadRequestError } = require("../expressError");
-const { ensureLoggedIn, ensureAdmin } = require("../middleware/auth");
+const { ensureAdmin } = require("../middleware/auth");
 const Company = require("../models/company");
 
 const companyNewSchema = require("../schemas/companyNew.json");
@@ -21,7 +21,7 @@ const router = new express.Router();
  *
  * Returns { handle, name, description, numEmployees, logoUrl }
  *
- * Authorization required: login
+ * Authorization required: isAdmin === true
  */
 
 router.post("/", ensureAdmin, async function (req, res, next) {
@@ -55,7 +55,7 @@ router.get("/", async function (req, res, next) {
   let companies;
   const q = req.query;
 
-  //could use jsonschema to validate inputs
+  //could use jsonschema to validate inputs -- need to create
   // jsonschema will validate query string objects just fine
   if (Object.keys(q).length !== 0) {
     if ("minEmployees" in q) q.minEmployees = +q.minEmployees;
@@ -92,7 +92,7 @@ router.get("/:handle", async function (req, res, next) {
  *
  * Returns { handle, name, description, numEmployees, logo_url }
  *
- * Authorization required: login
+ * Authorization required: isAdmin === true
  */
 
 router.patch("/:handle", ensureAdmin, async function (req, res, next) {
@@ -112,7 +112,7 @@ router.patch("/:handle", ensureAdmin, async function (req, res, next) {
 
 /** DELETE /[handle]  =>  { deleted: handle }
  *
- * Authorization: login
+ * Authorization: isAdmin === true
  */
 
 router.delete("/:handle", ensureAdmin, async function (req, res, next) {
