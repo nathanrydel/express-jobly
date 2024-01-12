@@ -56,7 +56,7 @@ class Job {
    * */
 
   static async findAll() {
-    const jobsResults = await db.query(`
+    const jobsRes = await db.query(`
       SELECT id,
              title,
              salary,
@@ -66,6 +66,36 @@ class Job {
       ORDER BY id
     `);
 
-    return jobsResults.rows;
+    return jobsRes.rows;
+  }
+
+  /** TODO:  Find all jobs according to the filtered criteria*/
+
+  /** TODO:  Takes an object of filter criteria and generates corresponding
+  * SQL statements for the WHERE clause and sanitizes values
+  * */
+
+  /** Given a job id, return data about job.
+   *
+   * Returns { id, title, salary, equity, company_handle }
+   *
+   * Throws NotFoundError if not found.
+   */
+
+  static async get(id) {
+    const jobRes = await db.query(`
+      SELECT id,
+             title,
+             salary,
+             equity,
+             company_handle AS "companyHandle"
+      FROM jobs
+      WHERE id = $1`, [id]);
+
+    const job = jobRes.rows[0];
+
+    if (!job) throw new NotFoundError(`No such job: ${id}`);
+
+    return job;
   }
 }
