@@ -61,14 +61,23 @@ describe("create", function () {
         equity: "0.5",
         company_handle: "error",
       };
-      expect(async () =>
-        await Job.create(invalidJob))
-        .toThrow(BadRequestError);
+      try {
+        await Job.create(invalidJob);
+        throw new Error("fail test, you shouldn't get here");
+      } catch (err) {
+        expect(err instanceof NotFoundError).toBeTruthy();
+      }
+      // expect(async function(){
+      //   await Job.create(invalidJob)
+      // })
+      //   .toThrow(NotFoundError);
     });
 });
 
 /************************************** findAll */
-
+// ('j1', 100, '0.1', 'c1'),
+//              ('j2', 200, '0.2', 'c2'),
+//              ('j3', 300, '0.3', 'c3')
 describe("findAll", function () {
   test("works: no filter", async function () {
     let jobs = await Job.findAll();
@@ -76,22 +85,22 @@ describe("findAll", function () {
     expect(jobs).toEqual([
       {
         id: expect.any(Number),
-        title: "test_job_1",
-        salary: 1000,
-        equity: "0.5",
+        title: "j1",
+        salary: 100,
+        equity: "0.1",
         company_handle: "c1",
       },
       {
         id: expect.any(Number),
-        title: "test_job_2",
-        salary: 9001,
-        equity: "0.1",
+        title: "j2",
+        salary: 200,
+        equity: "0.2",
         company_handle: "c2",
       },
       {
         id: expect.any(Number),
-        title: "test_job_3",
-        salary: 1499,
+        title: "j3",
+        salary: 300,
         equity: "0.3",
         company_handle: "c3",
       },
@@ -119,16 +128,22 @@ describe("get", function () {
 
     expect(job).toEqual({
       id: 1,
-      title: "test_job_1",
-      salary: 1000,
-      equity: "0.5",
+      title: "j1",
+      salary: 100,
+      equity: "0.1",
       company_handle: "c1",
     });
   });
 
   test("not found if no such job", async function () {
-    expect(async () => await Job.get("invalidJob"))
-      .toThrow(NotFoundError);
+    try {
+      await Job.get(-1);
+      throw new Error("fail test, you shouldn't get here");
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+    // expect(async () => await Job.get(-1))
+    //   .toThrow(NotFoundError);
   });
 });
 

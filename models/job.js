@@ -17,14 +17,14 @@ class Job {
    *
    */
 
-  static async create({ title, salary, equity, companyHandle }) {
+  static async create({ title, salary, equity, company_handle }) {
     const companyCheck = await db.query(`
       SELECT handle
       FROM companies
-      WHERE handle =$1`, [companyHandle]);
+      WHERE handle =$1`, [company_handle]);
 
-    if (companyCheck.rows[0]) {
-      throw new NotFoundError(`No such company: ${companyHandle}`);
+    if (!companyCheck.rows[0]) {
+      throw new NotFoundError(`No such company: ${company_handle}`);
     }
 
     const result = await db.query(`
@@ -38,11 +38,11 @@ class Job {
                     title,
                     salary,
                     equity,
-                    company_handle AS "companyHandle"`, [
+                    company_handle`, [
       title,
       salary,
       equity,
-      companyHandle,
+      company_handle,
     ]);
 
     const job = result.rows[0];
@@ -52,7 +52,7 @@ class Job {
 
   /** Find all jobs.
    *
-   * Returns [{ id, title, salary, equity, companyHandle }, ...]
+   * Returns [{ id, title, salary, equity, company_handle }, ...]
    * */
 
   static async findAll() {
@@ -61,7 +61,7 @@ class Job {
              title,
              salary,
              equity,
-             company_handle AS "companyHandle"
+             company_handle
       FROM jobs
       ORDER BY id
     `);
@@ -88,7 +88,7 @@ class Job {
              title,
              salary,
              equity,
-             company_handle AS "companyHandle"
+             company_handle
       FROM jobs
       WHERE id = $1`, [id]);
 
@@ -99,3 +99,4 @@ class Job {
     return job;
   }
 }
+module.exports = Job;
